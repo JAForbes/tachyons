@@ -1019,67 +1019,67 @@ const modules = {
                 )
             )
         )
-        ['not-small', 'medium', 'large']
-        .map( k => '--breakpoint-'+k )
-        .map(
-            variable =>
-                Rule.AtRule(
-                    AtRule.Media(
-                        Variable.Variable(
-                            variable
-                        )
-                    )
-                    ,[ Rule.Rule(
-                        Selector.Selector([
-                            SimpleSelector.Class(
-                                'cl-ns'
+        ,['not-small', 'medium', 'large']
+            .map( k => '--breakpoint-'+k )
+            .map(
+                variable =>
+                    Rule.AtRule(
+                        AtRule.Media(
+                            Variable.Variable(
+                                variable
                             )
-                        ])
-                        ,[ Declaration.Clear(
-                            Important.Unimportant
-                            ,[ Keyword.Left ]
+                        )
+                        ,[ Rule.Rule(
+                            Selector.Selector([
+                                SimpleSelector.Class(
+                                    'cl-ns'
+                                )
+                            ])
+                            ,[ Declaration.Clear(
+                                Important.Unimportant
+                                ,[ Keyword.Left ]
+                            )
+                            ]
+                        )
+                        ,Rule.Rule(
+                            Selector.Selector([
+                                SimpleSelector.Class(
+                                    'cr-ns'
+                                )
+                            ])
+                            ,[ Declaration.Clear(
+                                Important.Unimportant
+                                ,[ Keyword.Right ]
+                            )
+                            ]
+                        )
+                        ,Rule.Rule(
+                            Selector.Selector([
+                                SimpleSelector.Class(
+                                    'cb-ns'
+                                )
+                            ])
+                            ,[ Declaration.Clear(
+                                Important.Unimportant
+                                ,[ Keyword.Both ]
+                            )
+                            ]
+                        )
+                        ,Rule.Rule(
+                            Selector.Selector([
+                                SimpleSelector.Class(
+                                    'cn-ns'
+                                )
+                            ])
+                            ,[ Declaration.Clear(
+                                Important.Unimportant
+                                ,[ Keyword.None ]
+                            )
+                            ]
                         )
                         ]
                     )
-                    ,Rule.Rule(
-                        Selector.Selector([
-                            SimpleSelector.Class(
-                                'cr-ns'
-                            )
-                        ])
-                        ,[ Declaration.Clear(
-                            Important.Unimportant
-                            ,[ Keyword.Right ]
-                        )
-                        ]
-                    )
-                    ,Rule.Rule(
-                        Selector.Selector([
-                            SimpleSelector.Class(
-                                'cb-ns'
-                            )
-                        ])
-                        ,[ Declaration.Clear(
-                            Important.Unimportant
-                            ,[ Keyword.Both ]
-                        )
-                        ]
-                    )
-                    ,Rule.Rule(
-                        Selector.Selector([
-                            SimpleSelector.Class(
-                                'cn-ns'
-                            )
-                        ])
-                        ,[ Declaration.Clear(
-                            Important.Unimportant
-                            ,[ Keyword.None ]
-                        )
-                        ]
-                    )
-                    ]
-                )
-        )
+            )
         ]
     )
 }
