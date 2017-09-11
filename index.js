@@ -120,6 +120,13 @@ class Color {
             ,value
         }
     }
+    static RGBA(r,g,b,a){
+        return {
+            type: Color
+            ,case: Color.RGBA
+            ,r,g,b,a
+        }
+    }
 }
 
 const Keyword = {
@@ -193,6 +200,11 @@ const Keyword = {
         { value: 'inherit'
         , type: { name: 'Keyword' }
         , case: { name: 'Inherit' }
+        }
+    ,Transparent:
+        { value: 'transparent'
+        , type: { name: 'Keyword' }
+        , case: { name: 'Transparent' }
         }
 }
 
@@ -421,6 +433,15 @@ class Declaration {
             type: Declaration
             ,case: Declaration.Zoom
             ,important
+            ,cssValues
+            ,prefixes: []
+        }
+    }
+
+    static Variable(variableName, cssValues){
+        return {
+            type: Declaration
+            ,case: Declaration.Zoom
             ,cssValues
             ,prefixes: []
         }
@@ -828,7 +849,7 @@ const modules = {
             )
             ]
         )
-    , lists:
+    ,lists:
         Module.Module(
             'lists'
             , Rule.Rule(
@@ -845,7 +866,7 @@ const modules = {
                 ]
             )
         )
-    , skins:
+    ,skins:
         Module.Module(
             'skins'
             ,[[ 'black-90'
@@ -933,153 +954,271 @@ const modules = {
                     )
             )
         )
-    ,clears: Module.Module(
-        'clears'
-        ,[ Rule.Rule(
-            Selector.Selector([
-                SimpleSelector.Pseudo(
-                    'before'
-                    ,[ SimpleSelector.Class(
-                        'cf'
-                    )]
+    ,clears:
+        Module.Module(
+            'clears'
+            ,[ Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Pseudo(
+                        'before'
+                        ,[ SimpleSelector.Class(
+                            'cf'
+                        )]
+                    )
+                    ,SimpleSelector.Pseudo(
+                        'after'
+                        ,[SimpleSelector.Class(
+                            'cf'
+                        )]
+                    )
+                ])
+                ,[ Declaration.Content(' ')
+                , Declaration.Display(
+                    CSSValue.Keyword( Keyword.Table )
                 )
-                ,SimpleSelector.Pseudo(
-                    'after'
-                    ,[SimpleSelector.Class(
-                        'cf'
-                    )]
-                )
-            ])
-            ,[ Declaration.Content(' ')
-            , Declaration.Display(
-                CSSValue.Keyword( Keyword.Table )
+                ]
             )
-            ]
-        )
-        , Rule.Rule(
-            Selector.Selector([
-                SimpleSelector.Pseudo(
-                    'after'
-                    ,[ SimpleSelector.Class('cf')
-                    ]
-                )
-            ])
-            ,[ Declaration.Clear(
-                Keyword.Both
-            )
-            ]
-        )
-        , Rule.Rule(
-            Selector.Selector([
-                SimpleSelector.Class('cf')
-            ])
-            ,Declaration.IEStarHack(
-                Declaration.Zoom(
-                    CSSValue.Raw(1)
-                )
-            )
-        )
-        ,Rule.Rule(
-            Selector.Selector([
-                SimpleSelector.Class('cl')
-            ])
-            ,Declaration.Clear(
-                CSSValue.Keyword(
-                    Keyword.Left
-                )
-            )
-        )
-        ,Rule.Rule(
-            Selector.Selector([
-                SimpleSelector.Class('cr')
-            ])
-            ,Declaration.Clear(
-                CSSValue.Keyword(
-                    Keyword.Right
-                )
-            )
-        )
-        ,Rule.Rule(
-            Selector.Selector([
-                SimpleSelector.Class('cb')
-            ])
-            ,Declaration.Clear(
-                CSSValue.Keyword(
-                    Keyword.Both
-                )
-            )
-        )
-        ,Rule.Rule(
-            Selector.Selector([
-                SimpleSelector.Class('cn')
-            ])
-            ,Declaration.Clear(
-                CSSValue.Keyword(
-                    Keyword.None
-                )
-            )
-        )
-        ,['not-small', 'medium', 'large']
-            .map( k => '--breakpoint-'+k )
-            .map(
-                variable =>
-                    Rule.AtRule(
-                        AtRule.Media(
-                            Variable.Variable(
-                                variable
-                            )
-                        )
-                        ,[ Rule.Rule(
-                            Selector.Selector([
-                                SimpleSelector.Class(
-                                    'cl-ns'
-                                )
-                            ])
-                            ,[ Declaration.Clear(
-                                Important.Unimportant
-                                ,[ Keyword.Left ]
-                            )
-                            ]
-                        )
-                        ,Rule.Rule(
-                            Selector.Selector([
-                                SimpleSelector.Class(
-                                    'cr-ns'
-                                )
-                            ])
-                            ,[ Declaration.Clear(
-                                Important.Unimportant
-                                ,[ Keyword.Right ]
-                            )
-                            ]
-                        )
-                        ,Rule.Rule(
-                            Selector.Selector([
-                                SimpleSelector.Class(
-                                    'cb-ns'
-                                )
-                            ])
-                            ,[ Declaration.Clear(
-                                Important.Unimportant
-                                ,[ Keyword.Both ]
-                            )
-                            ]
-                        )
-                        ,Rule.Rule(
-                            Selector.Selector([
-                                SimpleSelector.Class(
-                                    'cn-ns'
-                                )
-                            ])
-                            ,[ Declaration.Clear(
-                                Important.Unimportant
-                                ,[ Keyword.None ]
-                            )
-                            ]
-                        )
+            , Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Pseudo(
+                        'after'
+                        ,[ SimpleSelector.Class('cf')
                         ]
                     )
+                ])
+                ,[ Declaration.Clear(
+                    Keyword.Both
+                )
+                ]
             )
-        ]
-    )
+            , Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class('cf')
+                ])
+                ,Declaration.IEStarHack(
+                    Declaration.Zoom(
+                        CSSValue.Raw(1)
+                    )
+                )
+            )
+            ,Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class('cl')
+                ])
+                ,Declaration.Clear(
+                    CSSValue.Keyword(
+                        Keyword.Left
+                    )
+                )
+            )
+            ,Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class('cr')
+                ])
+                ,Declaration.Clear(
+                    CSSValue.Keyword(
+                        Keyword.Right
+                    )
+                )
+            )
+            ,Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class('cb')
+                ])
+                ,Declaration.Clear(
+                    CSSValue.Keyword(
+                        Keyword.Both
+                    )
+                )
+            )
+            ,Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class('cn')
+                ])
+                ,Declaration.Clear(
+                    CSSValue.Keyword(
+                        Keyword.None
+                    )
+                )
+            )
+            ,['not-small', 'medium', 'large']
+                .map( k => '--breakpoint-'+k )
+                .map(
+                    variable =>
+                        Rule.AtRule(
+                            AtRule.Media(
+                                Variable.Variable(
+                                    variable
+                                )
+                            )
+                            ,[ Rule.Rule(
+                                Selector.Selector([
+                                    SimpleSelector.Class(
+                                        'cl-ns'
+                                    )
+                                ])
+                                ,[ Declaration.Clear(
+                                    Important.Unimportant
+                                    ,[ Keyword.Left ]
+                                )
+                                ]
+                            )
+                            ,Rule.Rule(
+                                Selector.Selector([
+                                    SimpleSelector.Class(
+                                        'cr-ns'
+                                    )
+                                ])
+                                ,[ Declaration.Clear(
+                                    Important.Unimportant
+                                    ,[ Keyword.Right ]
+                                )
+                                ]
+                            )
+                            ,Rule.Rule(
+                                Selector.Selector([
+                                    SimpleSelector.Class(
+                                        'cb-ns'
+                                    )
+                                ])
+                                ,[ Declaration.Clear(
+                                    Important.Unimportant
+                                    ,[ Keyword.Both ]
+                                )
+                                ]
+                            )
+                            ,Rule.Rule(
+                                Selector.Selector([
+                                    SimpleSelector.Class(
+                                        'cn-ns'
+                                    )
+                                ])
+                                ,[ Declaration.Clear(
+                                    Important.Unimportant
+                                    ,[ Keyword.None ]
+                                )
+                                ]
+                            )
+                            ]
+                        )
+                )
+            ]
+        )
+    ,colors:
+        Module.Module(
+            'colors'
+            ,[ Rule.Rule(
+                Selector.Selector(
+                    SimpleSelector.Pseudo(
+                        'root'
+                        ,[]
+                    )
+                )
+                ,Declaration.Variable(
+                    'black', [ Color.Hex(0x000) ]
+                )
+                ,Declaration.Variable(
+                    'near-black', [ Color.Hex(0x111) ]
+                )
+                ,Declaration.Variable(
+                    'dark-gray', [ Color.Hex(0x333) ]
+                )
+                ,Declaration.Variable(
+                    'mid-gray', [ Color.Hex(0x555) ]
+                )
+                ,Declaration.Variable(
+                    'gray', [ Color.Hex(0x777) ]
+                )
+                ,Declaration.Variable(
+                    'silver', [ Color.Hex(0x999) ]
+                )
+                ,Declaration.Variable(
+                    'light-silver', [ Color.Hex(0xaaa) ]
+                )
+                ,Declaration.Variable(
+                    'moon-gray', [ Color.Hex(0xccc) ]
+                )
+                ,Declaration.Variable(
+                    'light-gray', [ Color.Hex(0xeee) ]
+                )
+                ,Declaration.Variable(
+                    'near-white', [ Color.Hex(0xf4f4f4) ]
+                )
+                ,Declaration.Variable(
+                    'white', [ Color.Hex(0xfff) ]
+                )
+                ,Declaration.Variable(
+                    'transparent', [ Keyword.Transparent ]
+                )
+                ,[[['90', 0.9]
+                , ['80', 0.8]
+                , ['70', 0.7]
+                , ['60', 0.6]
+                , ['50', 0.5]
+                , ['40', 0.4]
+                , ['30', 0.3]
+                , ['20', 0.2]
+                , ['10', 0.1]
+                , ['05', 0.05]
+                , ['025', 0.025]
+                , ['0125', 0.0125]
+                ]]
+                .reduce(
+                    (p, [suffix, alpha]) =>
+                        p.concat(
+                            [['black', 0,0,0]
+                            ,['white', 255, 255, 255]
+                            ]
+                            .map(
+                                ([base, r,g,b]) =>
+                                    [base, r, g, b, suffix, alpha]
+                            )
+                        )
+                )
+                .map(
+                    ([base, r, g, b, suffix, alpha]) =>
+                        Declaration.Variable(
+                            base+'-'+suffix
+                            ,[
+                                Color.RGBA(r,g,b,alpha)
+                            ]
+                        )
+                )
+                .concat([
+                    ['dark-red', 0xe7040f]
+                    ,['red', 0xff4136]
+                    ,['light-red', 0xff725c]
+                    ,['orange', 0xff6300]
+                    ,['gold', 0xffb700]
+                    ,['yellow', 0xffd700]
+                    ,['light-yellow', 0xfbf1a9]
+                    ,['purple', 0x5e2ca5]
+                    ,['light-purple', 0xa463f2]
+                    ,['dark-pink', 0xd5008f]
+                    ,['hot-pink', 0xff41b4]
+                    ,['pink', 0xff80cc]
+                    ,['light-pink', 0xffa3d7]
+                    ,['dark-green', 0x137752]
+                    ,['green', 0x19a974]
+                    ,['light-green', 0x9eebcf]
+                    ,['navy', 0x001b44]
+                    ,['dark-blue', 0x00449e]
+                    ,['blue', 0x357edd]
+                    ,['light-blue', 0x96ccff]
+                    ,['lightest-blue', 0xcdecff]
+                    ,['washed-blue', 0xf6fffe]
+                    ,['washed-green', 0xe8fdf5]
+                    ,['washed-yellow', 0xfffceb]
+                    ,['washed-red', 0xffdfdf]
+                ]
+                .map(
+                    ([varName, value]) =>
+                        Declaration.Variable(
+                            varName, [ Color.Hex(value) ]
+                        )
+                ))
+
+            )
+            ]
+        )
 }
