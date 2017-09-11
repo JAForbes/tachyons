@@ -149,10 +149,21 @@ const Keyword = {
         , type: { name: 'Keyword' }
         , case: { name: 'None'}
         }
-}
-
-const Property = {
-    name: 'Property'
+    ,Both:
+        { value: 'both'
+        , type: { name: 'Keyword' }
+        , case: { name: 'Both' }
+        }
+    ,Left:
+        { value: 'left'
+        , type: { name: 'Keyword' }
+        , case: { name: 'Both' }
+        }
+    ,Right:
+        { value: 'right'
+        , type: { name: 'Keyword' }
+        , case: { name: 'Right'}
+        }
     ,Color:
         { value: 'color'
         , type: { name: 'Property' }
@@ -160,18 +171,28 @@ const Property = {
         }
     ,EaseIn:
         { value: 'ease-in'
-        , type: { name: 'Property' }
+        , type: { name: 'Keyword' }
         , case: { name: 'EaseIn' }
         }
     ,Dotted:
         { value: 'dotted'
-        , type: { name: 'Property' }
+        , type: { name: 'Keyword' }
         , case: { name: 'EaseIn' }
         }
     ,CurrentColor:
         { value: 'currentColor'
-        , type: { name: 'Property' }
+        , type: { name: 'Keyword' }
         , case: { name: 'CurrentColor' }
+        }
+    ,Table:
+        { value: 'table'
+        , type: { name: 'Keyword' }
+        , case: { name: 'Table' }
+        }
+    ,Inherit:
+        { value: 'inherit'
+        , type: { name: 'Keyword' }
+        , case: { name: 'Inherit' }
         }
 }
 
@@ -224,14 +245,6 @@ class CSSValue {
             value
             , type: CSSValue
             , case: CSSValue.Raw
-        }
-    }
-
-    static Property(property){
-        return {
-            property
-            , type: CSSValue
-            , case: CSSValue.Property
         }
     }
 
@@ -305,6 +318,16 @@ class Declaration {
         }
     }
 
+    static Padding(important, cssValues){
+        return {
+            cssValues
+            ,type: Declaration
+            ,case: Declaration.Padding
+            ,important
+            ,prefixes: []
+        }
+    }
+
     static TextDecoration(important, cssValues){
         return {
             cssValues
@@ -354,6 +377,54 @@ class Declaration {
             ,prefixes: []
         }
     }
+
+    static Content(important, cssValues){
+        return {
+            cssValues
+            ,type: Declaration
+            ,case: Declaration.Content
+            ,important
+            ,prefixes: []
+        }
+    }
+
+    static Display(important, cssValues){
+        return {
+            cssValues
+            ,type: Declaration
+            ,case: Declaration.Display
+            ,important
+            ,prefixes: []
+        }
+    }
+
+    static Clear(important, cssValues){
+        return {
+            cssValues
+            ,type: Declaration
+            ,case: Declaration.Clear
+            ,important
+            ,prefixes: []
+        }
+    }
+
+    static IEStarHack(declaration){
+        return {
+            type: Declaration
+            ,case: Declaration.IEStarHack
+            ,declaration
+        }
+    }
+
+    static Zoom(important, cssValues){
+        return {
+            type: Declaration
+            ,case: Declaration.Zoom
+            ,important
+            ,cssValues
+            ,prefixes: []
+        }
+    }
 }
 
 class SimpleSelector {
@@ -373,11 +444,10 @@ class SimpleSelector {
         }
     }
 
-    static Psuedo( psuedoName, selectors ){
+    static Pseudo( psuedoName, selectors ){
         return {
-            name
-            , type: SimpleSelector
-            , case: SimpleSelector.Type
+            type: SimpleSelector
+            , case: SimpleSelector.Pseudo
             , psuedoName
             , selectors
         }
@@ -387,10 +457,30 @@ class SimpleSelector {
 class Selector {
     static Selector(simpleSelectors){
         return {
-            name
-            , type: Selector
+            type: Selector
             , simpleSelectors
             , case: Selector.Selector
+        }
+    }
+}
+
+class AtRule {
+    static Media( breakpoint, rules ){
+        return {
+            type: AtRule
+            ,case: AtRule.Media
+            ,rules
+            ,breakpoint
+        }
+    }
+}
+
+class Variable {
+    static Variable(name){
+        return {
+            type: Variable
+            ,case: Variable.Variable
+            ,name
         }
     }
 }
@@ -402,6 +492,14 @@ class Rule {
             , type: Rule
             , case: Rule.Rule
             , declarations
+        }
+    }
+
+    static AtRule( atRule ){
+        return {
+            type: Rule
+            ,case: Rule.AtRule
+            ,atRule
         }
     }
 }
@@ -643,21 +741,21 @@ const modules = {
                 )
                 , Declaration.Transition(
                     Important.Unimportant
-                    ,[ Unit.Property( Property.Color )
+                    ,[ CSSValue.Keyword( Keyword.Color )
                     , Unit.Second(0.15)
-                    , Unit.Property( Property.EaseIn )
+                    , CSSValue.Keyword( Keyword.EaseIn )
                     ]
                 )
                 ]
             )
             , Rule.Rule(
                 Selector.Selector([
-                    SimpleSelector.Psuedo(
+                    SimpleSelector.Pseudo(
                         'link'
                         ,[ SimpleSelector.Class('link')
                         ]
                     )
-                    ,SimpleSelector.Psuedo(
+                    ,SimpleSelector.Pseudo(
                         'visited'
                         ,[ SimpleSelector.Class('link')
                         ]
@@ -665,16 +763,16 @@ const modules = {
                 ])
                 ,[ Declaration.Transition(
                     Important.Unimportant
-                    ,[ Unit.Property( Property.Color )
+                    ,[ CSSValue.Keyword( Keyword.Color )
                     , Unit.Second(0.15)
-                    , Unit.Property( Property.EaseIn )
+                    , CSSValue.Keyword( Keyword.EaseIn )
                     ]
                 )
                 ]
             )
             ,Rule.Rule(
                 Selector.Selector([
-                    SimpleSelector.Psuedo(
+                    SimpleSelector.Pseudo(
                         'hover'
                         ,[ SimpleSelector.Class('link')
                         ]
@@ -682,16 +780,16 @@ const modules = {
                 ])
                 ,[ Declaration.Transition(
                     Important.Unimportant
-                    ,[ Unit.Property( Property.Color )
+                    ,[ CSSValue.Keyword( Keyword.Color )
                     , Unit.Second(0.15)
-                    , Unit.Property( Property.EaseIn )
+                    , CSSValue.Keyword( Keyword.EaseIn )
                     ]
                 )
                 ]
             )
             ,Rule.Rule(
                 Selector.Selector([
-                    SimpleSelector.Psuedo(
+                    SimpleSelector.Pseudo(
                         'active'
                         ,[ SimpleSelector.Class('link')
                         ]
@@ -699,16 +797,16 @@ const modules = {
                 ])
                 ,[ Declaration.Transition(
                     Important.Unimportant
-                    ,[ Unit.Property( Property.Color )
+                    ,[ CSSValue.Keyword( Keyword.Color )
                     , Unit.Second(0.15)
-                    , Unit.Property( Property.EaseIn )
+                    , CSSValue.Keyword( Keyword.EaseIn )
                     ]
                 )
                 ]
             )
             ,Rule.Rule(
                 Selector.Selector([
-                    SimpleSelector.Psuedo(
+                    SimpleSelector.Pseudo(
                         'focus'
                         ,[ SimpleSelector.Class('link')
                         ]
@@ -716,16 +814,14 @@ const modules = {
                 ])
                 ,[ Declaration.Transition(
                     Important.Unimportant
-                    ,[ Unit.Property( Property.Color )
-                    , Unit.Second(0.15)
-                    , Unit.Property( Property.EaseIn )
+                    ,[ CSSValue.Keyword( Keyword.Inherit , Unit.Second(0.15))
+                    , CSSValue.Keyword( Keyword.Inherit )
                     ]
                 )
                 , Declaration.Outline(
                     Important.Unimportant
                     ,[ Unit.Pixel(1)
-                    , Unit.Property( Property.Dotted )
-                    , Unit.Property( Property.CurrentColor )
+                    , CSSValue.Keyword( Keyword.Inherit , CSSValue.Keyword( Keyword.Inherit ))
                     ]
                 )
                 ]
@@ -821,6 +917,7 @@ const modules = {
                 )
             )
             .reduce( (p,n) => p.concat(n) )
+            .reduce( (p,n) => p.concat(n) )
             .map(
                 ([ className, declarationFn, varName ]) =>
                     Rule.Rule(
@@ -828,7 +925,7 @@ const modules = {
                             SimpleSelector.Class(className)
                         ])
                         ,[ varName == 'inherit'
-                            ? CSSValue.Property('inherit')
+                            ? CSSValue.Keyword( Keyword.Inherit )
                             : declarationFn(
                                 CSSValue.Variable(varName)
                             )
@@ -836,4 +933,148 @@ const modules = {
                     )
             )
         )
+    ,clears: Module.Module(
+        'clears'
+        ,[ Rule.Rule(
+            Selector.Selector([
+                SimpleSelector.Pseudo(
+                    'before'
+                    ,[ SimpleSelector.Class(
+                        'cf'
+                    )]
+                )
+                ,SimpleSelector.Pseudo(
+                    'after'
+                    ,[SimpleSelector.Class(
+                        'cf'
+                    )]
+                )
+            ])
+            ,[ Declaration.Content(' ')
+            , Declaration.Display(
+                CSSValue.Keyword( Keyword.Table )
+            )
+            ]
+        )
+        , Rule.Rule(
+            Selector.Selector([
+                SimpleSelector.Pseudo(
+                    'after'
+                    ,[ SimpleSelector.Class('cf')
+                    ]
+                )
+            ])
+            ,[ Declaration.Clear(
+                Keyword.Both
+            )
+            ]
+        )
+        , Rule.Rule(
+            Selector.Selector([
+                SimpleSelector.Class('cf')
+            ])
+            ,Declaration.IEStarHack(
+                Declaration.Zoom(
+                    CSSValue.Raw(1)
+                )
+            )
+        )
+        ,Rule.Rule(
+            Selector.Selector([
+                SimpleSelector.Class('cl')
+            ])
+            ,Declaration.Clear(
+                CSSValue.Keyword(
+                    Keyword.Left
+                )
+            )
+        )
+        ,Rule.Rule(
+            Selector.Selector([
+                SimpleSelector.Class('cr')
+            ])
+            ,Declaration.Clear(
+                CSSValue.Keyword(
+                    Keyword.Right
+                )
+            )
+        )
+        ,Rule.Rule(
+            Selector.Selector([
+                SimpleSelector.Class('cb')
+            ])
+            ,Declaration.Clear(
+                CSSValue.Keyword(
+                    Keyword.Both
+                )
+            )
+        )
+        ,Rule.Rule(
+            Selector.Selector([
+                SimpleSelector.Class('cn')
+            ])
+            ,Declaration.Clear(
+                CSSValue.Keyword(
+                    Keyword.None
+                )
+            )
+        )
+        ,Rule.AtRule(
+            AtRule.Media(
+                Variable.Variable(
+                    'breakpoint-not-small'
+                )
+            )
+            ,[ Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class(
+                        'cl-ns'
+                    )
+                ])
+                ,[ Declaration.Clear(
+                    Important.Unimportant
+                    ,[ Keyword.Left ]
+                )
+                ]
+            )
+            ,Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class(
+                        'cr-ns'
+                    )
+                ])
+                ,[ Declaration.Clear(
+                    Important.Unimportant
+                    ,[ Keyword.Right ]
+                )
+                ]
+            )
+            ,Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class(
+                        'cb-ns'
+                    )
+                ])
+                ,[ Declaration.Clear(
+                    Important.Unimportant
+                    ,[ Keyword.Both ]
+                )
+                ]
+            )
+             ,Rule.Rule(
+                Selector.Selector([
+                    SimpleSelector.Class(
+                        'cn-ns'
+                    )
+                ])
+                ,[ Declaration.Clear(
+                    Important.Unimportant
+                    ,[ Keyword.None ]
+                )
+                ]
+            )
+            ]
+        )
+        ]
+    )
 }
